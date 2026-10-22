@@ -1,4 +1,4 @@
-/* Google sign-in for the web version (subscription by Google account).
-   Paste your "Web application" OAuth Client ID below (see README). Leave empty to hide the Google sign-in button.
-   Add https://zohaib65.github.io under "Authorized JavaScript origins" in Google Cloud. */
-window.GOOGLE_CLIENT = { webId: "" };
+/* Google one-tap sign-in for the web version (subscription by Google account).
+   Paste the Client ID of your "Web application" Google client below (see GOOGLE-LOGIN-SETUP.txt).
+   In Google Cloud add  https://zohaib65.github.io  under "Authorized JavaScript origins". Leave empty to hide the button. */
+window.GOOGLE_LOGIN = { id: "" };
