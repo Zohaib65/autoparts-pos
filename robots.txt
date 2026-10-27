@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://zohaib65.github.io/autoparts-pos/sitemap.xml
+Disallow: /pos/
+Disallow: /login.html
+Sitemap: https://automotivepos.online/sitemap.xml
