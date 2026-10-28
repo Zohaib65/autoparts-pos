@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in – AutoParts POS</title>
+<link rel="icon" href="favicon.png">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0c111b;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:20px}
+.card{background:#fff;color:#111a26;border-radius:18px;padding:28px 24px;width:min(380px,100%);text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+img{width:64px;height:64px;border-radius:14px}h1{font-size:22px;margin:12px 0 4px}p{color:#5b6779;margin:0 0 18px;font-size:15px}
+button,a.b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:1px solid #cfd6e2;border-radius:12px;background:#fff;font-size:16px;font-weight:600;cursor:pointer;color:#111a26;text-decoration:none}
+button:hover{background:#f4f6fa}#msg{min-height:1.4em;margin-top:14px;color:#c62f3a;font-size:14px}.ok{color:#0f8a45!important}
+a.o{background:#f28a1e;border-color:#f28a1e}[hidden]{display:none!important}
+</style></head><body>
+<div class="card"><img src="icon-192.png" alt=""><h1>Sign in to AutoParts POS</h1><p>Use the Google account your subscription is under.</p>
+<button id="go" type="button"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
+<div id="msg"></div><a id="back" class="b o" href="#" hidden>Open the POS app</a></div>
+<script src="firebase-config.js"></script><script>window.__c1=window.FIREBASE_CFG;window.FIREBASE_CFG=null</script>
+<script src="pos/google-config.js"></script><script>window.__c2=window.FIREBASE_CFG;window.FIREBASE_CFG=null</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),cb=q.get("cb")||"",st=q.get("state")||"",msg=document.getElementById("msg");
+  var okCb=/^http:\/\/localhost:\d{2,5}\/$/.test(cb)||cb==="rajapos://oauth"||cb==="web";
+  function say(t,g){msg.textContent=t;msg.className=g?"ok":""}
+  if(!okCb)say("This sign-in link is not valid. Open it from the POS software.");
+  var c=[window.__c1,window.__c2].filter(function(x){return x&&x.apiKey})[0]||(q.get("k")&&q.get("p")?{apiKey:q.get("k"),projectId:q.get("p")}:null);
+  if(!c||!c.apiKey){say("Sign-in is not set up yet.");}
+  var auth=null;try{if(c&&c.apiKey){firebase.initializeApp({apiKey:c.apiKey,projectId:c.projectId,authDomain:c.authDomain||(c.projectId+".firebaseapp.com")});auth=firebase.auth();auth.setPersistence(firebase.auth.Auth.Persistence.NONE)}}catch(e){say("Sign-in could not start.")}
+  document.getElementById("go").onclick=function(){
+    if(!okCb||!auth)return;say("");
+    try{history.replaceState(null,"",location.origin+location.pathname)}catch(e){}
+    var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});
+    auth.signInWithPopup(p).then(function(r){
+      var rt=r.user.refreshToken;
+      if(cb==="web"){
+        if(window.opener){window.opener.postMessage({type:"pos-login",rt:rt,state:st},location.origin);say("Signed in. You can close this window.",1);setTimeout(function(){window.close()},600)}
+        else say("Open this page from the POS website.");
+      }else{
+        var u=cb+(cb.indexOf("?")>=0?"&":"?")+"rt="+encodeURIComponent(rt)+"&state="+encodeURIComponent(st);
+        say("Signed in. Returning to the software...",1);
+        var b=document.getElementById("back");b.href=u;b.hidden=false;
+        setTimeout(function(){location.href=u},300);
+      }
+    }).catch(function(e){say(e&&e.code==="auth/popup-closed-by-user"?"Sign-in was cancelled.":"Sign-in failed: "+(e&&e.code||"try again")+(e&&e.message?" ("+String(e.message).replace(/^Firebase: /,"").slice(0,140)+")":""))});
+  };
+})();
+</script></body></html>
