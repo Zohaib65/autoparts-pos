@@ -26,6 +26,7 @@ a.o{background:#f28a1e;border-color:#f28a1e}[hidden]{display:none!important}
   var auth=null;try{if(c&&c.apiKey){firebase.initializeApp({apiKey:c.apiKey,projectId:c.projectId,authDomain:c.authDomain||(c.projectId+".firebaseapp.com")});auth=firebase.auth();auth.setPersistence(firebase.auth.Auth.Persistence.NONE)}}catch(e){say("Sign-in could not start.")}
   document.getElementById("go").onclick=function(){
     if(!okCb||!auth)return;say("");
+    try{history.replaceState(null,"",location.origin+location.pathname)}catch(e){}
     var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});
     auth.signInWithPopup(p).then(function(r){
       var rt=r.user.refreshToken;
@@ -38,7 +39,7 @@ a.o{background:#f28a1e;border-color:#f28a1e}[hidden]{display:none!important}
         var b=document.getElementById("back");b.href=u;b.hidden=false;
         setTimeout(function(){location.href=u},300);
       }
-    }).catch(function(e){say(e&&e.code==="auth/popup-closed-by-user"?"Sign-in was cancelled.":"Sign-in failed: "+(e&&e.code||"try again"))});
+    }).catch(function(e){say(e&&e.code==="auth/popup-closed-by-user"?"Sign-in was cancelled.":"Sign-in failed: "+(e&&e.code||"try again")+(e&&e.message?" ("+String(e.message).replace(/^Firebase: /,"").slice(0,140)+")":""))});
   };
 })();
 </script></body></html>
